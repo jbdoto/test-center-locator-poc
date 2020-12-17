@@ -1,0 +1,9 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  CovidTestLocator:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: covidTestLocator.lambda_handler
+      Runtime: python3.7
+      CodeUri: s3://covid-test-locator/dfd4a79716eb36f36dde6736865634a4
