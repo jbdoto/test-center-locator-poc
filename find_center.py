@@ -7,28 +7,35 @@ import pprint
 
 def distance(lat1, lon1, lat2, lon2):
     p = 0.017453292519943295
-    a = 0.5 - cos((lat2-lat1)*p)/2 + cos(lat1*p)*cos(lat2*p) * (1-cos((lon2-lon1)*p)) / 2
+    a = 0.5 - cos((lat2 - lat1) * p) / 2 + cos(lat1 * p) * cos(lat2 * p) * (1 - cos((lon2 - lon1) * p)) / 2
     return 12742 * asin(sqrt(a))
 
+
 def closest(data, v):
-    return min(data, key=lambda p: distance(v['lat'],v['lon'], float(p['lat']),float(p['lon'])))
+    """Borrowed from this thread: https://stackoverflow.com/questions/41336756/find-the-closest-latitude-and
+    -longitude. """
+    return min(data, key=lambda p: distance(v['lat'], v['lon'], float(p['lat']), float(p['lon'])))
+
 
 def get_location(intent_request):
+    """ Given a person's zipcode, lookup the details of the zipcode to get State and Lat, Lon.
+    Then use the covidtestcentersinUS API to find all test centers in a State, find the closest center
+    to the input Zipcode, and return JSON info containing center details."""
 
     zipcode = intent_request['zipcode']
-    search = SearchEngine(simple_zipcode=True) # set simple_zipcode=False to use rich info database
+    search = SearchEngine(simple_zipcode=True)  # set simple_zipcode=False to use rich info database
     zipcode = search.by_zipcode(zipcode)
-    #print(zipcode)
+    # print(zipcode)
     zipcode_dict = zipcode.to_dict()
     state = zipcode_dict['state']
 
-    #print('getting closest location for state={}'.format(state))
+    # print('getting closest location for state={}'.format(state))
 
     api = "https://sheetlabs.com/NCOR/covidtestcentersinUS?state={}".format(state)
     http = urllib3.PoolManager()
     response = http.request('GET', api)
     test_locations = json.loads(response.data.decode('utf-8'))
-    #pprint.pprint(test_locations)
+    # pprint.pprint(test_locations)
     # look up person's ZIP code...get state, then query above API.
     # find closest center by lat/lon:
     # https://pypi.org/project/pgeocode/
@@ -46,12 +53,13 @@ def get_location(intent_request):
     #     moreinfo: null,
     #     drivethru: "O"
     # }
-    #current_lat_lon = {'lat': 39.7622290, 'lon': -86.1519750}
-    #print(zipcode_dict)
+    # current_lat_lon = {'lat': 39.7622290, 'lon': -86.1519750}
+    # print(zipcode_dict)
     current_lat_lon = {'lat': zipcode_dict['lat'], 'lon': zipcode_dict['lng']}
     closest_location = closest(test_locations, current_lat_lon)
     pprint.pprint(closest_location)
     return closest_location
+
 
 get_location({'zipcode': '19072'})
 print("-----------------------------------\n")
