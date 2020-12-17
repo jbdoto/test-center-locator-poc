@@ -169,7 +169,16 @@ def get_location(intent_request):
     current_lat_lon = {'lat': zipcode_lat, 'lon': zipcode_lon}
     closest_location = closest(test_locations, current_lat_lon)
     #pprint.pprint(closest_location)
-    return closest_location
+
+    session_attributes = intent_request['sessionAttributes'] if intent_request['sessionAttributes'] is not None else {}
+    return close(
+        session_attributes,
+        'Fulfilled',
+        {
+            'contentType': 'PlainText',
+            'content': 'Thank you, here is your testing center information: ' + json.dumps(closest_location)
+        }
+    )
 
 
 def dispatch(intent_request):
