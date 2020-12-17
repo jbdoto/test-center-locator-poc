@@ -22,7 +22,7 @@ def get_location(intent_request):
     Then use the covidtestcentersinUS API to find all test centers in a State, find the closest center
     to the input Zipcode, and return JSON info containing center details."""
 
-    zipcode = intent_request['currentIntent']['zipcode']
+    zipcode = intent_request['currentIntent']['slots']['zipcode']
     #search = SearchEngine(simple_zipcode=True)  # set simple_zipcode=False to use rich info database
     #zipcode = search.by_zipcode(zipcode)
     # print(zipcode)
@@ -68,7 +68,7 @@ def get_location(intent_request):
     return closest_location
 
 
-get_location({'currentIntent': {"zipcode": 19072}})
+get_location({'currentIntent': {'name': 'GetLocation', 'slots': {'zipcode': '19072'}, 'slotDetails': {'zipcode': {'resolutions': [{'value': '19072'}], 'originalValue': '19072'}}}})
 print("-----------------------------------\n")
 # get_location({'state': 'PA'})
 # print("-----------------------------------\n")

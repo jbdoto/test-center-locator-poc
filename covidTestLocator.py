@@ -127,7 +127,7 @@ def get_location(intent_request):
     :return: Nearest Test Center JSON object.
     """
 
-    zipcode = intent_request['currentIntent']['zipcode']
+    zipcode = intent_request['currentIntent']['slots']['zipcode']
     #search = SearchEngine(simple_zipcode=True)  # set simple_zipcode=False to use rich info database
     #zipcode = search.by_zipcode(zipcode)
     # print(zipcode)
@@ -177,7 +177,7 @@ def dispatch(intent_request):
     Called when the user specifies an intent for this bot.
     """
 
-    logger.debug('dispatch userId={}, intentName={}'.format(intent_request['userId'], intent_request['currentIntent']['name']))
+    logger.debug('dispatch userId={}, intent_request={}'.format(intent_request['userId'], intent_request))
 
     intent_name = intent_request['currentIntent']['name']
 
