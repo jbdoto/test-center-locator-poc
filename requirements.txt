@@ -1,2 +1,5 @@
-uszipcode
-
+awscli
+aws-sam-cli
+pyzipcode
+nose
+tornado

@@ -6,4 +6,4 @@ Resources:
     Properties:
       Handler: covidTestLocator.lambda_handler
       Runtime: python3.7
-      CodeUri: s3://covid-test-locator/dfd4a79716eb36f36dde6736865634a4
+      CodeUri: s3://covid-test-locator/246f812b1bae713f16018b0baa4d08c2

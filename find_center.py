@@ -1,7 +1,7 @@
 import json
 import urllib3
 from math import cos, asin, sqrt
-from uszipcode import SearchEngine
+from pyzipcode import ZipCodeDatabase
 import pprint
 
 
@@ -22,12 +22,19 @@ def get_location(intent_request):
     Then use the covidtestcentersinUS API to find all test centers in a State, find the closest center
     to the input Zipcode, and return JSON info containing center details."""
 
-    zipcode = intent_request['zipcode']
-    search = SearchEngine(simple_zipcode=True)  # set simple_zipcode=False to use rich info database
-    zipcode = search.by_zipcode(zipcode)
+    zipcode = intent_request['currentIntent']['zipcode']
+    #search = SearchEngine(simple_zipcode=True)  # set simple_zipcode=False to use rich info database
+    #zipcode = search.by_zipcode(zipcode)
     # print(zipcode)
-    zipcode_dict = zipcode.to_dict()
-    state = zipcode_dict['state']
+    #zipcode_dict = zipcode.to_dict()
+    #state = zipcode_dict['state']
+
+
+    zcdb = ZipCodeDatabase()
+    zipcode_data = zcdb[zipcode]
+    state = zipcode_data.state
+    zipcode_lat = zipcode_data.latitude
+    zipcode_lon = zipcode_data.longitude
 
     # print('getting closest location for state={}'.format(state))
 
@@ -55,13 +62,13 @@ def get_location(intent_request):
     # }
     # current_lat_lon = {'lat': 39.7622290, 'lon': -86.1519750}
     # print(zipcode_dict)
-    current_lat_lon = {'lat': zipcode_dict['lat'], 'lon': zipcode_dict['lng']}
+    current_lat_lon = {'lat': zipcode_lat, 'lon': zipcode_lon}
     closest_location = closest(test_locations, current_lat_lon)
     pprint.pprint(closest_location)
     return closest_location
 
 
-get_location({'zipcode': '19072'})
+get_location({'currentIntent': {"zipcode": 19072}})
 print("-----------------------------------\n")
 # get_location({'state': 'PA'})
 # print("-----------------------------------\n")
