@@ -21,3 +21,8 @@ To Package:
 To Deploy:
 
     sam deploy --template-file /Users/jeffdoto/Desktop/geocoding_test/package.yml --stack-name covid-lambda-stack --region=us-east-1 --capabilities CAPABILITY_IAM
+
+
+To install dependencies:
+
+    pip install -r requirements.txt
