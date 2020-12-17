@@ -1,19 +1,17 @@
 """
-This sample demonstrates an implementation of the Lex Code Hook Interface
-in order to serve a sample bot which manages reservations for hotel rooms and car rentals.
-Bot, Intent, and Slot models which are compatible with this sample can be found in the Lex Console
-as part of the 'BookTrip' template.
+This Lex lambda function takes a given input zipcode, resolves the zipcode State's testing centers, finds the nearest
+testing center, and returns to the Lex bot.
+
+Original code taken from the Booking bot.
 
 For instructions on how to set up and test this bot, as well as additional samples,
 visit the Lex Getting Started documentation http://docs.aws.amazon.com/lex/latest/dg/getting-started.html.
 """
 
-import datetime
-import time
-import os
-import dateutil.parser
-import logging
 import json
+import logging
+import os
+import time
 import urllib3
 from math import cos, asin, sqrt
 from uszipcode import SearchEngine
@@ -110,8 +108,6 @@ def build_validation_result(isvalid, violated_slot, message_content):
 
 # --- Intents ---
 
-
-# This is crazy: https://stackoverflow.com/questions/41336756/find-the-closest-latitude-and-longitude
 def distance(lat1, lon1, lat2, lon2):
     p = 0.017453292519943295
     a = 0.5 - cos((lat2-lat1)*p)/2 + cos(lat1*p)*cos(lat2*p) * (1-cos((lon2-lon1)*p)) / 2
