@@ -117,7 +117,15 @@ def closest(data, v):
     return min(data, key=lambda p: distance(v['lat'],v['lon'], float(p['lat']),float(p['lon'])))
 
 def get_location(intent_request):
+    """
+    Take the Lex intent request, pull the zipcode out, find the Zipcode's State, Lat, Lon.
 
+    Look up state's testing centers, then find the nearest center to input Zipcode.
+
+
+    :param intent_request: Lex bot intent_request object
+    :return: Nearest Test Center JSON object.
+    """
     zipcode = intent_request['zipcode']
     search = SearchEngine(simple_zipcode=True) # set simple_zipcode=False to use rich info database
     zipcode = search.by_zipcode(zipcode)
