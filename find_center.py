@@ -3,6 +3,7 @@ import urllib3
 from math import cos, asin, sqrt
 from pyzipcode import ZipCodeDatabase
 import pprint
+import re
 
 
 def distance(lat1, lon1, lat2, lon2):
@@ -32,7 +33,20 @@ def get_location(intent_request):
     """ Given a person's zipcode, lookup the details of the zipcode to get State and Lat, Lon.
     Then use the covidtestcentersinUS API to find all test centers in a State, find the closest center
     to the input Zipcode, and return JSON info containing center details."""
+    session_attributes = intent_request['sessionAttributes'] if intent_request['sessionAttributes'] is not None else {}
     zipcode = intent_request['currentIntent']['slots']['zipcode']
+    # validate zipcode, must be five digits, return retry if not successful
+    if not re.match("\d\d\d\d\d", zipcode):
+        print("Invalid zipcode: " + zipcode)
+        return close(
+            session_attributes,
+            'Fulfilled',
+            {
+                'contentType': 'PlainText',
+                'content': 'try again '
+            }
+        )
+
     #search = SearchEngine(simple_zipcode=True)  # set simple_zipcode=False to use rich info database
     #zipcode = search.by_zipcode(zipcode)
     # print(zipcode)
@@ -75,8 +89,7 @@ def get_location(intent_request):
     closest_location = closest(test_locations, current_lat_lon)
     #pprint.pprint(closest_location)
 
-    session_attributes = intent_request['sessionAttributes'] if intent_request['sessionAttributes'] is not None else {}
-    #print(json.dumps(closest_location))
+    print(json.dumps(closest_location))
     return close(
         session_attributes,
         'Fulfilled',
@@ -90,6 +103,9 @@ def get_location(intent_request):
 
 get_location({'sessionAttributes': {}, 'currentIntent': {'name': 'GetLocation', 'slots': {'zipcode': '19072'}, 'slotDetails': {'zipcode': {'resolutions': [{'value': '19072'}], 'originalValue': '19072'}}}})
 print("-----------------------------------\n")
+get_location({'sessionAttributes': {}, 'currentIntent': {'name': 'GetLocation', 'slots': {'zipcode': '172'}, 'slotDetails': {'zipcode': {'resolutions': [{'value': '19072'}], 'originalValue': '19072'}}}})
+print("-----------------------------------\n")
+
 # get_location({'state': 'PA'})
 # print("-----------------------------------\n")
 # get_location({'state': 'NJ'})

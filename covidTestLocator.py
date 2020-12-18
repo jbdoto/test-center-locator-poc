@@ -15,6 +15,8 @@ import time
 import urllib3
 from math import cos, asin, sqrt
 from pyzipcode import ZipCodeDatabase
+import re
+
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
@@ -128,6 +130,20 @@ def get_location(intent_request):
     """
 
     zipcode = intent_request['currentIntent']['slots']['zipcode']
+    slots = intent_request['currentIntent']['slots']
+    session_attributes = intent_request['sessionAttributes'] if intent_request['sessionAttributes'] is not None else {}
+    # validate zipcode, must be five digits, return retry if not successful
+    if not re.match("\d\d\d\d\d", zipcode):
+        print("Invalid zipcode: " + zipcode)
+        slots['zipcode'] = None
+        return elicit_slot(
+            session_attributes,
+            intent_request['currentIntent']['name'],
+            slots,
+            'zipcode',
+            {'contentType': 'PlainText', 'content': "Sorry, that zipcode looks invalid.  Please enter a valid 5-digit zipcode:"}
+        )
+
     #search = SearchEngine(simple_zipcode=True)  # set simple_zipcode=False to use rich info database
     #zipcode = search.by_zipcode(zipcode)
     # print(zipcode)
@@ -135,7 +151,19 @@ def get_location(intent_request):
     #state = zipcode_dict['state']
 
     zcdb = ZipCodeDatabase()
-    zipcode_data = zcdb[zipcode]
+    try:
+        zipcode_data = zcdb[zipcode]
+    except:
+        print("No data found for zipcode: " + zipcode)
+        slots['zipcode'] = None
+        return elicit_slot(
+            session_attributes,
+            intent_request['currentIntent']['name'],
+            slots,
+            'zipcode',
+            {'contentType': 'PlainText', 'content': "Sorry, that zipcode looks invalid.  Please enter a valid 5-digit zipcode:"}
+        )
+
     state = zipcode_data.state
     zipcode_lat = zipcode_data.latitude
     zipcode_lon = zipcode_data.longitude
@@ -167,18 +195,28 @@ def get_location(intent_request):
     # current_lat_lon = {'lat': 39.7622290, 'lon': -86.1519750}
     # print(zipcode_dict)
     current_lat_lon = {'lat': zipcode_lat, 'lon': zipcode_lon}
-    closest_location = closest(test_locations, current_lat_lon)
-    #pprint.pprint(closest_location)
+    if len(test_locations) > 0:
+        closest_location = closest(test_locations, current_lat_lon)
+        #pprint.pprint(closest_location)
 
-    session_attributes = intent_request['sessionAttributes'] if intent_request['sessionAttributes'] is not None else {}
-    return close(
-        session_attributes,
-        'Fulfilled',
-        {
-            'contentType': 'PlainText',
-            'content': 'Thank you, here is your testing center information: ' + json.dumps(closest_location)
-        }
-    )
+        return close(
+            session_attributes,
+            'Fulfilled',
+            {
+                'contentType': 'PlainText',
+                'content': 'Thank you, here is your testing center information: ' + json.dumps(closest_location)
+            }
+        )
+    else:
+        print("No test centers found for zipcode: " + zipcode)
+        slots['zipcode'] = None
+        return elicit_slot(
+            session_attributes,
+            intent_request['currentIntent']['name'],
+            slots,
+            'zipcode',
+            {'contentType': 'PlainText', 'content': "Sorry, we didn't have any data for that zipcode. Please try again:"}
+        )
 
 
 def dispatch(intent_request):
